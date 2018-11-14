@@ -84,6 +84,7 @@ print 'df.apply() is ' + str(time_listcomp/time_apply) + 'times faster than list
 
 #==============================================================================
 # Create a long table by stacking selected columns
+# adapted from @jezrael
 #==============================================================================
 
 def stack_columns(df, colnames_to_stack, new_colname1, new_colname2):
@@ -101,6 +102,7 @@ def stack_columns(df, colnames_to_stack, new_colname1, new_colname2):
       -------
       A dataframe with two new columns instead of the columns to be stacked
       """
+
       # Make a list of column names to keep
       keep_colnames = list(df.columns.drop(colnames_to_stack))
       # Stack selected columns
@@ -116,9 +118,9 @@ def stack_columns(df, colnames_to_stack, new_colname1, new_colname2):
 
 
 # List of column names to keep
-drop_cols = ['image1', 'image2', 'image3', 'image4']
+cols_to_stack = ['image1', 'image2', 'image3', 'image4']
 # Stack the columns
-df = stack_columns(df, drop_cols, 'image', 'correct')
+df = stack_columns(df, cols_to_stack, 'image', 'correct')
 
 print df
 print '\n\n\n'
@@ -127,8 +129,30 @@ print '\n\n\n'
 #==============================================================================
 # Sometimes a cell in a dataframe contains a list
 # Expand such a list into separate columns
-#
+# adapted from @jezrael
 #==============================================================================
+
+def expand_list_to_cols(df, col_name):
+  """
+
+  Parameters
+  ----------
+
+  df : pandas dataframe
+  col_name : string containing the column name with the list
+
+  Returns
+  -------
+  A dataframe with two new columns instead of the columns to be stacked
+  """
+
+  # Make a list of all columns besides the column containing the list
+  cols = df.columns[df.columns != col_name].tolist()
+  # Creat a series from list and join it to the rest of the columns
+  df = df[cols].join(df[col_name].apply(pd.Series))
+
+  return df
+
 
 # Create an example dataframe
 df = pd.read_csv(StringIO.StringIO("""
@@ -143,12 +167,11 @@ df.fields = df.fields.apply(lambda s: s[1:-1].split(','))
 print df
 print '\n'
 
-# Expand the list into columns
-cols = df.columns[df.columns != 'fields'].tolist() # adapted from @jezrael
-# Creat a series from list and join to the rest of the columns
-df = df[cols].join(df.fields.apply(pd.Series))
+# Expand list into columns
+df = expand_list_to_cols(df,'fields')
 print df
 print '\n'
+
 
 #==============================================================================
 # Select the data based on items NOT in the list
