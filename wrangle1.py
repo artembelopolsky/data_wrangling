@@ -29,7 +29,7 @@ raw_data = {'first_name': ['Jason', 'Andrew', 'Helen', 'Laura', 'Katja'],
         'image1': 0, 'image2': 1, 'image3': 1, 'image4': 1}
 
 data = pd.DataFrame(raw_data)
-#@data_tmp = data.copy() # copy dataframe for speed comparison below
+#data_tmp = data.copy() # copy dataframe for speed comparison below
 
 print data
 print '\n\n\n'
@@ -184,3 +184,51 @@ df = df[~df.first_name.isin(['Jason','Helen'])]
 
 print df
 
+
+#==============================================================================
+# Bin the data
+#
+#==============================================================================
+
+def bin_data(df, col_name, custom_bins):
+  """
+
+  Parameters
+  ----------
+
+  df : pandas dataframe
+  col_name : string containing the column name with the list
+
+  Returns
+  -------
+  A dataframe with two new columns instead of the columns to be stacked
+  """
+
+
+
+
+
+
+  return df
+
+
+raw_data = {'first_name': ['Jason', 'Andrew', 'Helen', 'Laura', 'Katja'],
+        'nationality': ['USA', 'USA', 'France', 'Netherlands', 'Russia'],
+        'age': [42, 52, 36, 24, 70],
+        'height': [180, 175, 200, 195, 195],
+        'image1': 0, 'image2': 1, 'image3': 1, 'image4': 1}
+
+data = pd.DataFrame(raw_data)
+
+
+# Set the time bins for one and two abnormalites
+custom_bins = np.linspace(170, 200, 10)
+
+data['time_bins'] = pd.cut(data.height, custom_bins)
+
+fixcount = data.groupby([data.age, data.first_name, data.nationality, data.height, data.image1, data.image2, data.image3, data.time_bins]).size()
+
+a = fixcount.reset_index()
+a.rename(columns = {0:'fix_count'}, inplace=True)
+
+a['proportion'] = a['fix_count'].div(a.groupby([a.age, a.first_name, a.nationality, a.height, a.image1, a.image2, a.image3, a.time_bins])['fix_count'].transform('sum'))
