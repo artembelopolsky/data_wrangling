@@ -223,5 +223,6 @@ raw_data = {'latency': np.random.randint(100, 500, size=10),
                }
 
 df = pd.DataFrame(raw_data)
-df = bin_data(df, 'latency', 'time_bins', bin_start=0, bin_stop=600, num_bins=5)
+df = bin_data(df, 'latency', 'time_bins', bin_start=0, bin_stop=600, num_bins=6)
 df.accuracy.groupby([df.time_bins]).mean().plot()
+df.accuracy.groupby([df.time_bins]).mean()
