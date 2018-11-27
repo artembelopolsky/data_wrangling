@@ -201,12 +201,12 @@ def bin_data(df, in_col_name, out_col_name, bin_start, bin_stop, num_bins):
   in_col_name : string containing the column name with a varible to bin
   out_col_name: string containing the column name with respective bin
   bin_start: the earliest time of all bins
-  bin_end: the last time of all bins
+  bin_end: the latest time of all bins
   num_bins: total number of bins
 
   Returns
   -------
-  A dataframe with two new columns instead of the columns to be stacked
+  A dataframe with a new column containing the bins
   """
 
   custom_bins = np.linspace(bin_start, bin_stop, num_bins+1)
