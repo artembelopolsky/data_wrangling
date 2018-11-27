@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 import time
 import StringIO
+import random
 
 
 #==============================================================================
@@ -190,45 +191,37 @@ print df
 #
 #==============================================================================
 
-def bin_data(df, col_name, custom_bins):
+def bin_data(df, in_col_name, out_col_name, bin_start, bin_stop, num_bins):
   """
 
   Parameters
   ----------
 
   df : pandas dataframe
-  col_name : string containing the column name with the list
+  in_col_name : string containing the column name with a varible to bin
+  out_col_name: string containing the column name with respective bin
+  bin_start: the earliest time of all bins
+  bin_end: the last time of all bins
+  num_bins: total number of bins
 
   Returns
   -------
   A dataframe with two new columns instead of the columns to be stacked
   """
 
-
-
-
+  custom_bins = np.linspace(bin_start, bin_stop, num_bins+1)
+  df[out_col_name] = pd.cut(df[in_col_name], custom_bins)
 
 
   return df
 
 
-raw_data = {'first_name': ['Jason', 'Andrew', 'Helen', 'Laura', 'Katja'],
-        'nationality': ['USA', 'USA', 'France', 'Netherlands', 'Russia'],
-        'age': [42, 52, 36, 24, 70],
-        'height': [180, 175, 200, 195, 195],
-        'image1': 0, 'image2': 1, 'image3': 1, 'image4': 1}
 
-data = pd.DataFrame(raw_data)
+# Create a dataframe
+raw_data = {'latency': np.random.randint(100, 500, size=10),
+               'accuracy': np.random.randint(0,2,size=10),
+               }
 
-
-# Set the time bins for one and two abnormalites
-custom_bins = np.linspace(170, 200, 10)
-
-data['time_bins'] = pd.cut(data.height, custom_bins)
-
-fixcount = data.groupby([data.age, data.first_name, data.nationality, data.height, data.image1, data.image2, data.image3, data.time_bins]).size()
-
-a = fixcount.reset_index()
-a.rename(columns = {0:'fix_count'}, inplace=True)
-
-a['proportion'] = a['fix_count'].div(a.groupby([a.age, a.first_name, a.nationality, a.height, a.image1, a.image2, a.image3, a.time_bins])['fix_count'].transform('sum'))
+df = pd.DataFrame(raw_data)
+df = bin_data(df, 'latency', 'time_bins', bin_start=0, bin_stop=600, num_bins=5)
+df.accuracy.groupby([df.time_bins]).mean().plot()
